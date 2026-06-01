@@ -1,148 +1,138 @@
--- SGB ULTRA MASTER PANEL - RE-ENGINEERED 100% CLEAN SOURCE
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
+local SG = Instance.new("ScreenGui")
+SG.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+SG.ResetOnSpawn = false
 
-local MainFrame = Instance.new("Frame")
-local LeftPanel = Instance.new("Frame")
-local RightPanel = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local UICorner = Instance.new("UICorner")
+local MF = Instance.new("Frame")
+local LP = Instance.new("Frame")
+local RP = Instance.new("Frame")
+local TL = Instance.new("TextLabel")
+local UC = Instance.new("UICorner")
 
-local Pages = {}
-local TogglesState = { Effects = false, Props = false, Vegetation = false }
-local BackupData = { Materials = {}, Transparency = {}, MeshSizes = {}, SpecialScales = {} }
-local CustomConnections = {}
-local TabButtons = {}
-local LabelsList = {}
-local TogglesButtonsList = {}
-
+local Pgs = {}
+local Conns = {}
+local Tgl = {E = false, P = false, V = false}
+local Bck = {M = {}, T = {}, S = {}, X = {}}
+local Tabs = {}
+local Lbls = {}
+local TglB = {}
 local CurrentKey = "O"
 local CurScale = 1.0
 
-MainFrame.Name = "SGB_Master_Panel"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-MainFrame.Position = UDim2.new(0.2, 0, 0.15, 0)
-MainFrame.Size = UDim2.new(0, 650, 0, 450)
-MainFrame.Active = true
-MainFrame.Draggable = true
+MF.Name = "SGB_Panel"
+MF.Parent = SG
+MF.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+MF.Position = UDim2.new(0.2, 0, 0.15, 0)
+MF.Size = UDim2.new(0, 650, 0, 450)
+MF.Active = true
+MF.Draggable = true
 
-local MainCorner = UICorner:Clone()
-MainCorner.CornerRadius = UDim.new(0, 14)
-MainCorner.Parent = MainFrame
+local MC = UC:Clone()
+MC.CornerRadius = UDim.new(0, 14)
+MC.Parent = MF
 
-LeftPanel.Parent = MainFrame
-LeftPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
-LeftPanel.Size = UDim2.new(0, 180, 1, 0)
+LP.Parent = MF
+LP.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+LP.Size = UDim2.new(0, 180, 1, 0)
 
-local LeftCorner = UICorner:Clone()
-LeftCorner.CornerRadius = UDim.new(0, 14)
-LeftCorner.Parent = LeftPanel
+local LC = UC:Clone()
+LC.CornerRadius = UDim.new(0, 14)
+LC.Parent = LP
 
-Title.Parent = LeftPanel
-Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(1, 0, 0, 50)
-Title.Text = "🌟 SGB ULTRA"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 18
-Title.Font = Enum.Font.SourceSansBold
+TL.Parent = LP
+TL.BackgroundTransparency = 1
+TL.Size = UDim2.new(1, 0, 0, 50)
+TL.Text = "🌟 SGB ULTRA"
+TL.TextColor3 = Color3.fromRGB(255, 255, 255)
+TL.TextSize = 18
+TL.Font = Enum.Font.SourceSansBold
 
-RightPanel.Parent = MainFrame
-RightPanel.BackgroundTransparency = 1
-RightPanel.Position = UDim2.new(0, 190, 0, 10)
-RightPanel.Size = UDim2.new(0, 450, 0, 430)
+RP.Parent = MF
+RP.BackgroundTransparency = 1
+RP.Position = UDim2.new(0, 190, 0, 10)
+RP.Size = UDim2.new(0, 450, 0, 430)
 
-local function CreatePage(name)
-    local PageFrame = Instance.new("ScrollingFrame")
-    PageFrame.Parent = RightPanel
-    PageFrame.Size = UDim2.new(1, 0, 1, 0)
-    PageFrame.BackgroundTransparency = 1
-    PageFrame.CanvasSize = UDim2.new(0, 0, 2.5, 0)
-    PageFrame.ScrollBarThickness = 4
-    PageFrame.Visible = false
-    Pages[name] = PageFrame
-    return PageFrame
+local function CP(n)
+    local PF = Instance.new("ScrollingFrame")
+    PF.Parent = RP
+    PF.Size = UDim2.new(1, 0, 1, 0)
+    PF.BackgroundTransparency = 1
+    PF.CanvasSize = UDim2.new(0, 0, 2.2, 0)
+    PF.ScrollBarThickness = 4
+    PF.Visible = false
+    Pgs[n] = PF
+    return PF
 end
 
-local MainSettingsPage = CreatePage("MainSettings")
-local FastFlagsPage = CreatePage("FastFlags")
-local ThemePage = CreatePage("Theme")
-
+local M_S = CP("M")
+local F_F = CP("F")
+local T_P = CP("T")
 local btnY = 60
-local function CreateTabButton(text, pageFrame)
-    local btn = Instance.new("TextButton")
-    btn.Parent = LeftPanel
-    btn.Size = UDim2.new(0, 150, 0, 40)
-    btn.Position = UDim2.new(0, 15, 0, btnY)
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 13
-    btn.Font = Enum.Font.SourceSansBold
-    
-    local c = UICorner:Clone()
-    c.CornerRadius = UDim.new(0, 8)
-    c.Parent = btn
+
+local function CT(t, p)
+    local b = Instance.new("TextButton")
+    b.Parent = LP
+    b.Size = UDim2.new(0, 150, 0, 40)
+    b.Position = UDim2.new(0, 15, 0, btnY)
+    b.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    b.Text = t
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.TextSize = 13
+    b.Font = Enum.Font.SourceSansBold
     btnY = btnY + 50
-    table.insert(TabButtons, btn)
-    
-    btn.MouseButton1Click:Connect(function()
-        for _, p in pairs(Pages) do p.Visible = false end
-        pageFrame.Visible = true
-        for _, x in pairs(TabButtons) do x.BackgroundColor3 = Color3.fromRGB(20, 20, 25) end
-        btn.BackgroundColor3 = Color3.fromRGB(40, 120, 40)
+    local c = UC:Clone()
+    c.CornerRadius = UDim.new(0, 8)
+    c.Parent = b
+    table.insert(Tabs, b)
+    b.MouseButton1Click:Connect(function()
+        for _, v in pairs(Pgs) do v.Visible = false end
+        p.Visible = true
+        for _, x in pairs(Tabs) do x.BackgroundColor3 = Color3.fromRGB(20, 20, 25) end
+        b.BackgroundColor3 = Color3.fromRGB(40, 120, 40)
     end)
 end
 
-CreateTabButton("⚙️ إعدادات الإخفاء الدقيقة", MainSettingsPage)
-CreateTabButton("⚡ اعدادات الفاست فلاج", FastFlagsPage)
-CreateTabButton("🎨 تخصيص الواجهه", ThemePage)
-TabButtons[3].BackgroundColor3 = Color3.fromRGB(40, 120, 40)
+-- بناء الأزرار الرئيسية في القائمة الجانبية اليسرى
+CT("⚙️ إعدادات الإخفاء الدقيقة", M_S)
+CT("⚡ اعدادات الفاست فلاج", F_F)
+CT("🎨 تخصيص الواجهه", T_P)
 
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Parent = LeftPanel
-CloseBtn.Size = UDim2.new(0, 150, 0, 35)
-CloseBtn.Position = UDim2.new(0, 15, 1, -50)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(150, 40, 40)
-CloseBtn.Text = "إغلاق السكربت"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.TextSize = 13
-CloseBtn.Font = Enum.Font.SourceSansBold
-local cc = UICorner:Clone()
+local CB = Instance.new("TextButton")
+CB.Parent = LP
+CB.Size = UDim2.new(0, 150, 0, 35)
+CB.Position = UDim2.new(0, 15, 1, -50)
+CB.BackgroundColor3 = Color3.fromRGB(150, 40, 40)
+CB.Text = "إغلاق السكربت"
+CB.TextColor3 = Color3.fromRGB(255, 255, 255)
+CB.TextSize = 13
+CB.Font = Enum.Font.SourceSansBold
+local cc = UC:Clone()
 cc.CornerRadius = UDim.new(0, 6)
-cc.Parent = CloseBtn
-CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+cc.Parent = CB
+CB.MouseButton1Click:Connect(function() SG:Destroy() end)
 
-local function CreateToggle(parent, text, yPos, callback)
-    local label = Instance.new("TextLabel")
-    label.Parent = parent label.Size = UDim2.new(0, 240, 0, 30) label.Position = UDim2.new(0, 10, 0, yPos) label.BackgroundTransparency = 1
-    label.Text = "⬅️ " .. text label.TextColor3 = Color3.fromRGB(255, 255, 255) label.TextSize = 13 label.TextXAlignment = Enum.TextXAlignment.Left label.Font = Enum.Font.SourceSans table.insert(LabelsList, label)
-
-    local btn = Instance.new("TextButton")
-    btn.Parent = parent btn.Size = UDim2.new(0, 110, 0, 26) btn.Position = UDim2.new(0, 310, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(100, 40, 40) btn.Text = "تعطيل ❌" btn.TextColor3 = Color3.fromRGB(255, 255, 255) btn.TextSize = 12 btn.Font = Enum.Font.SourceSansBold table.insert(TogglesButtonsList, btn)
-    local c = UICorner:Clone() c.CornerRadius = UDim.new(0, 6) c.Parent = btn
-
-    local enabled = false
-    btn.MouseButton1Click:Connect(function()
-        enabled = not enabled
-        btn.BackgroundColor3 = enabled and Color3.fromRGB(40, 120, 40) or Color3.fromRGB(100, 40, 40)
-        btn.Text = enabled and "تفعيل ✔️" or "تعطيل ❌"
-        callback(enabled)
+local function C_T(p, t, y, cb)
+    local l = Instance.new("TextLabel")
+    l.Parent = p l.Size = UDim2.new(0, 280, 0, 30) l.Position = UDim2.new(0, 10, 0, y) l.BackgroundTransparency = 1
+    l.Text = "⬅️ " .. t l.TextColor3 = Color3.fromRGB(255, 255, 255) l.TextSize = 13 l.TextXAlignment = Enum.TextXAlignment.Left table.insert(Lbls, l)
+    local b = Instance.new("TextButton")
+    b.Parent = p b.Size = UDim2.new(0, 100, 0, 26) b.Position = UDim2.new(0, 320, 0, y)
+    b.BackgroundColor3 = Color3.fromRGB(100, 40, 40) b.Text = "تعطيل ❌" b.TextColor3 = Color3.fromRGB(255, 255, 255) b.TextSize = 12 b.Font = Enum.Font.SourceSansBold local c = UC:Clone() c.CornerRadius = UDim.new(0, 6) c.Parent = b table.insert(TglB, b)
+    local e = false b.MouseButton1Click:Connect(function()
+        e = not e b.BackgroundColor3 = e and Color3.fromRGB(40, 120, 40) or Color3.fromRGB(100, 40, 40) b.Text = e and "تفعيل ✔️" or "تعطيل ❌" cb(e)
     end)
 end
 
-local function isProtected(obj)
-    local Players = game:GetService("Players")
-    if obj:IsDescendantOf(Players) or obj:FindFirstChildOfClass("Humanoid") or (obj.Parent and obj.Parent:FindFirstChildOfClass("Humanoid")) then return true end
-    if obj.Name:lower() == "baseplate" or obj.Name:lower() == "floor" or (obj:IsA("BasePart") and (obj.Size.X >= 500 or obj.Size.Z >= 500)) then return true end
+local function isP(o)
+    local Pl = game:GetService("Players")
+    if o:IsDescendantOf(Pl) or o:FindFirstChildOfClass("Humanoid") or (o.Parent and o.Parent:FindFirstChildOfClass("Humanoid")) then return true end
+    if o.Name:lower() == "baseplate" or o.Name:lower() == "floor" or (o:IsA("BasePart") and (o.Size.X >= 500 or o.Size.Z >= 500)) then return true end
     return false
 end
 
 local function checkE(v)
     if not Tgl.E then return end
-    if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Beam") or v:IsA("Sparkles") then v:Destroy()
+    if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Beam") or v:IsA("Sparkles") then
+        v:Destroy()
     elseif v:IsA("MeshPart") or v:IsA("SpecialMesh") then
         local nl = v.Name:lower()
         if nl:find("fx") or nl:find("effect") or nl:find("hit") or nl:find("slash") or nl:find("shock") then v:Destroy() end
@@ -180,13 +170,13 @@ end
 
 local function ApplyTheme(th)
     local m, p, t, b = Color3.fromRGB(20, 20, 25), Color3.fromRGB(30, 30, 38), Color3.fromRGB(255, 255, 255), Color3.fromRGB(20, 20, 25)
-    if th == "C" then m = Color3.fromRGB(10, 16, 26) p = Color3.fromRGB(16, 26, 41) t = Color3.fromRGB(0, 180, 255) b = Color3.fromRGB(12, 22, 36)
-    elseif th == "M" then m = Color3.fromRGB(6, 6, 8) p = Color3.fromRGB(14, 14, 18) t = Color3.fromRGB(240, 240, 245) b = Color3.fromRGB(10, 10, 12)
-    elseif th == "S" then m = Color3.fromRGB(28, 12, 12) p = Color3.fromRGB(41, 16, 16) t = Color3.fromRGB(255, 60, 0) b = Color3.fromRGB(24, 10, 10) end
+    if th == "C" then m=Color3.fromRGB(10,16,26) p=Color3.fromRGB(16,26,41) t=Color3.fromRGB(0,180,255) b=Color3.fromRGB(12,22,36)
+    elseif th == "M" then m=Color3.fromRGB(6,6,8) p=Color3.fromRGB(14,14,18) t=Color3.fromRGB(240,240,245) b=Color3.fromRGB(10,10,12)
+    elseif th == "S" then m=Color3.fromRGB(28,12,12) p=Color3.fromRGB(41,16,16) t=Color3.fromRGB(255,60,0) b=Color3.fromRGB(24,10,10) end
     MF.BackgroundColor3 = m LP.BackgroundColor3 = p TL.TextColor3 = t
-    for _, x in pairs(Lbls) do x.TextColor3 = t end
     for _, x in pairs(Tabs) do if x.BackgroundColor3 ~= Color3.fromRGB(40, 120, 40) then x.BackgroundColor3 = b end x.TextColor3 = t end
-    for _, x in pairs(TglB) do if x:IsA("TextButton") and not x.Name:find("Clr") then x.TextColor3 = t if x.Text:find("تفعيل") or x.Text:find("➕") or x.Text:find("➖") then x.BackgroundColor3 = (th == "C" and Color3.fromRGB(0, 130, 200) or th == "S" and Color3.fromRGB(200, 60, 0) or x.Text:find("➖") and Color3.fromRGB(150, 40, 40) or Color3.fromRGB(40, 120, 40)) end end end
+    for _, x in pairs(Lbls) do x.TextColor3 = t end
+    for _, x in pairs(TglB) do if x:IsA("TextButton") and not x.Name:find("Clr") then x.TextColor3 = t if x.Text:find("تفعيل") or x.Text:find("➕") or x.Text:find("➖") then x.BackgroundColor3 = (th=="C" and Color3.fromRGB(0,130,200) or th=="S" and Color3.fromRGB(200,60,0) or x.Text:find("➖") and Color3.fromRGB(150,40,40) or Color3.fromRGB(40,120,40)) end end end
 end
 
 local function SetSc(s)
@@ -194,8 +184,21 @@ local function SetSc(s)
     for _, x in pairs(Tabs) do x.TextSize = 13*CurScale end for _, x in pairs(Lbls) do x.TextSize = 13*CurScale end for _, x in pairs(TglB) do x.TextSize = 12*CurScale end
 end
 
-CreateToggle(MainSettingsPage, "إخفاء مؤثرات الضربات والكومبو تماماً", 15, function(v) Tgl.E = v if v then for _, o in pairs(workspace:GetDescendants()) do checkE(o) end if workspace.CurrentCamera then for _, o in pairs(workspace:GetDescendants()) do checkE(o) end end if #Conns == 0 then table.insert(Conns, workspace.DescendantAdded:Connect(function(o) task.defer(checkE, o) end)) if workspace.CurrentCamera then table.insert(Conns, workspace.CurrentCamera.DescendantAdded:Connect(function(o) task.defer(checkE, o) end)) end end else for _, c in pairs(Conns) do if c then c:Disconnect() end end table.clear(Conns) end end)
-CreateToggle(MainSettingsPage, "إخفاء الديكور حول الماب", 55, function(v) Tgl.P = v for _, o in pairs(workspace:GetDescendants()) do updateO(o, "Props", v) end end)
-CreateToggle(MainSettingsPage, "إزالة كل النباتات", 95, function(v) Tgl.V = v for _, o in pairs(workspace:GetDescendants()) do updateO(o, "Veg", v) end end)
+-- عناصر صفحة إعدادات الإخفاء الدقيقة
+C_T(M_S, "إخفاء مؤثرات الضربات والكومبو تماماً", 15, function(v) Tgl.E = v if v then for _, o in pairs(workspace:GetDescendants()) do checkE(o) end if workspace.CurrentCamera then for _, o in pairs(workspace:GetDescendants()) do checkE(o) end end if #Conns == 0 then table.insert(Conns, workspace.DescendantAdded:Connect(function(o) task.defer(checkE, o) end)) if workspace.CurrentCamera then table.insert(Conns, workspace.CurrentCamera.DescendantAdded:Connect(function(o) task.defer(checkE, o) end)) end end else for _, c in pairs(Conns) do if c then c:Disconnect() end end table.clear(Conns) end end)
+C_T(M_S, "إخفاء الديكور حول الماب", 55, function(v) Tgl.P = v for _, o in pairs(workspace:GetDescendants()) do updateO(o, "Props", v) end end)
+C_T(M_S, "إزالة كل النباتات", 95, function(v) Tgl.V = v for _, o in pairs(workspace:GetDescendants()) do updateO(o, "Veg", v) end end)
 
-CreateToggle(FastFlagsPage, "إيقاف تفعيل الظلال وحسابات الإضاءة العالمية", 15, function(v) game:GetService("Lighting").GlobalShadows = not v end)
+-- عناصر صفحة الفاست فلاج
+C_T(F_F, "إيقاف تفعيل الظلال وحسابات الإضاءة العالمية", 15, function(v) game:GetService("Lighting").GlobalShadows = not v end)
+C_T(F_F, "تفعيل الجرافيكس والأرضية البلاستيكية الناعمة", 55, function(v) for _, p in pairs(workspace:GetDescendants()) do if p:IsA("BasePart") and p.Name:lower()~="baseplate" then if v then if not Bck.M[p] then Bck.M[p] = p.Material end p.Material = Enum.Material.SmoothPlastic else if Bck.M[p] then p.Material = Bck.M[p] end end end end end)
+
+-- عناصر صفحة تخصيص الواجهة
+local KL = Instance.new("TextLabel")
+KL.Parent = T_P KL.Size = UDim2.new(0, 240, 0, 30) KL.Position = UDim2.new(0, 10, 0, 10) KL.BackgroundTransparency = 1 KL.Text = "⬅️ زر إخفاء وإظهار اللوحة الكلي:" KL.TextColor3 = Color3.fromRGB(255, 255, 255) table.insert(Lbls, KL)
+
+local KI = Instance.new("TextBox")
+KI.Parent = T_P KI.Size = UDim2.new(0, 100, 0, 30) KI.Position = UDim2.new(0, 320, 0, 10) KI.BackgroundColor3 = Color3.fromRGB(40, 40, 50) KI.Text = "O" KI.TextColor3 = Color3.fromRGB(255, 255, 255) KI.TextSize = 14 KI.Font = Enum.Font.SourceSansBold
+local kcc = UC:Clone() kcc.CornerRadius = UDim.new(0, 6) kcc.Parent = KI
+
+KI.FocusLost:Connect(function() local text = KI.Text:sub(1, 1):upper() if text ~= "" then CurrentKey = text KI.Text = text else KI.Text = CurrentKey end end)
