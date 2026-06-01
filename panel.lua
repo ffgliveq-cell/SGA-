@@ -91,7 +91,6 @@ local function CT(t, p)
     end)
 end
 
--- بناء الأزرار الرئيسية في القائمة الجانبية اليسرى
 CT("⚙️ إعدادات الإخفاء الدقيقة", M_S)
 CT("⚡ اعدادات الفاست فلاج", F_F)
 CT("🎨 تخصيص الواجهه", T_P)
@@ -174,8 +173,8 @@ local function ApplyTheme(th)
     elseif th == "M" then m=Color3.fromRGB(6,6,8) p=Color3.fromRGB(14,14,18) t=Color3.fromRGB(240,240,245) b=Color3.fromRGB(10,10,12)
     elseif th == "S" then m=Color3.fromRGB(28,12,12) p=Color3.fromRGB(41,16,16) t=Color3.fromRGB(255,60,0) b=Color3.fromRGB(24,10,10) end
     MF.BackgroundColor3 = m LP.BackgroundColor3 = p TL.TextColor3 = t
-    for _, x in pairs(Tabs) do if x.BackgroundColor3 ~= Color3.fromRGB(40, 120, 40) then x.BackgroundColor3 = b end x.TextColor3 = t end
     for _, x in pairs(Lbls) do x.TextColor3 = t end
+    for _, x in pairs(Tabs) do if x.BackgroundColor3 ~= Color3.fromRGB(40, 120, 40) then x.BackgroundColor3 = b end x.TextColor3 = t end
     for _, x in pairs(TglB) do if x:IsA("TextButton") and not x.Name:find("Clr") then x.TextColor3 = t if x.Text:find("تفعيل") or x.Text:find("➕") or x.Text:find("➖") then x.BackgroundColor3 = (th=="C" and Color3.fromRGB(0,130,200) or th=="S" and Color3.fromRGB(200,60,0) or x.Text:find("➖") and Color3.fromRGB(150,40,40) or Color3.fromRGB(40,120,40)) end end end
 end
 
@@ -184,16 +183,13 @@ local function SetSc(s)
     for _, x in pairs(Tabs) do x.TextSize = 13*CurScale end for _, x in pairs(Lbls) do x.TextSize = 13*CurScale end for _, x in pairs(TglB) do x.TextSize = 12*CurScale end
 end
 
--- عناصر صفحة إعدادات الإخفاء الدقيقة
 C_T(M_S, "إخفاء مؤثرات الضربات والكومبو تماماً", 15, function(v) Tgl.E = v if v then for _, o in pairs(workspace:GetDescendants()) do checkE(o) end if workspace.CurrentCamera then for _, o in pairs(workspace:GetDescendants()) do checkE(o) end end if #Conns == 0 then table.insert(Conns, workspace.DescendantAdded:Connect(function(o) task.defer(checkE, o) end)) if workspace.CurrentCamera then table.insert(Conns, workspace.CurrentCamera.DescendantAdded:Connect(function(o) task.defer(checkE, o) end)) end end else for _, c in pairs(Conns) do if c then c:Disconnect() end end table.clear(Conns) end end)
 C_T(M_S, "إخفاء الديكور حول الماب", 55, function(v) Tgl.P = v for _, o in pairs(workspace:GetDescendants()) do updateO(o, "Props", v) end end)
 C_T(M_S, "إزالة كل النباتات", 95, function(v) Tgl.V = v for _, o in pairs(workspace:GetDescendants()) do updateO(o, "Veg", v) end end)
 
--- عناصر صفحة الفاست فلاج
 C_T(F_F, "إيقاف تفعيل الظلال وحسابات الإضاءة العالمية", 15, function(v) game:GetService("Lighting").GlobalShadows = not v end)
 C_T(F_F, "تفعيل الجرافيكس والأرضية البلاستيكية الناعمة", 55, function(v) for _, p in pairs(workspace:GetDescendants()) do if p:IsA("BasePart") and p.Name:lower()~="baseplate" then if v then if not Bck.M[p] then Bck.M[p] = p.Material end p.Material = Enum.Material.SmoothPlastic else if Bck.M[p] then p.Material = Bck.M[p] end end end end end)
 
--- عناصر صفحة تخصيص الواجهة
 local KL = Instance.new("TextLabel")
 KL.Parent = T_P KL.Size = UDim2.new(0, 240, 0, 30) KL.Position = UDim2.new(0, 10, 0, 10) KL.BackgroundTransparency = 1 KL.Text = "⬅️ زر إخفاء وإظهار اللوحة الكلي:" KL.TextColor3 = Color3.fromRGB(255, 255, 255) table.insert(Lbls, KL)
 
@@ -202,3 +198,6 @@ KI.Parent = T_P KI.Size = UDim2.new(0, 100, 0, 30) KI.Position = UDim2.new(0, 32
 local kcc = UC:Clone() kcc.CornerRadius = UDim.new(0, 6) kcc.Parent = KI
 
 KI.FocusLost:Connect(function() local text = KI.Text:sub(1, 1):upper() if text ~= "" then CurrentKey = text KI.Text = text else KI.Text = CurrentKey end end)
+game:GetService("UserInputService").InputBegan:Connect(function(i, g) if not g then pcall(function() if i.KeyCode == Enum.KeyCode[string.upper(CurrentKey)] then SG.Enabled = not SG.Enabled end end) end end)
+
+-- أزرار الزائد والناقص كليك واحد الفورية المصلحة
